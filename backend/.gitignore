@@ -1,0 +1,9 @@
+parking.db
+parking.db-shm
+parking.db-wal
+__pycache__/
+.venv/
+.env
+*.py[cod]
+.ruff_cache/
+.pytest_cache/

@@ -1,0 +1,32 @@
+# Frontend dependencies and generated output
+node_modules/
+dist/
+coverage/
+.vite/
+
+# Python environments and generated files
+backend/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local environment variables and secrets
+.env
+.env.*
+!.env.example
+!backend/.env.example
+
+# Local databases and runtime files
+*.db
+*.db-shm
+*.db-wal
+*.log
+
+# Temporary workspace probe
+/test.txt
+
+# Operating system files
+.DS_Store
+Thumbs.db

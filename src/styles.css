@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root { font-family: 'DM Sans', sans-serif; color: #202a31; background: #f6f7f4; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+button, input { font: inherit; }
+.page-shell { min-height: 100vh; max-width: 1240px; margin: 0 auto; padding: 0 56px; display: flex; flex-direction: column; }
+.topbar { height: 88px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e8eae5; }
+.brand { display: inline-flex; gap: 10px; align-items: center; color: #26332c; text-decoration: none; font-family: Manrope, sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -.5px; }
+.brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 10px; color: #fff; background: #4d8b67; font-size: 16px; }
+.user-email { color: #6c756e; font-size: 13px; }
+.welcome-card { width: min(100%, 440px); margin: auto; padding: 60px 0 70px; }
+.eyebrow { display: flex; align-items: center; gap: 9px; color: #738178; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; }
+.availability-counts { display: inline-flex; align-items: center; gap: 5px; margin-left: 4px; color: #7d887f; font-size: 9px; font-weight: 500; letter-spacing: .2px; white-space: nowrap; }
+.availability-counts strong:first-of-type { color: #ae5a50; }
+.availability-counts strong:last-of-type { color: #477e5c; }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #69a77e; box-shadow: 0 0 0 4px #e6f0e8; }
+h1 { margin: 24px 0 13px; color: #26332c; font-family: Manrope, sans-serif; font-size: clamp(42px, 6vw, 58px); font-weight: 700; letter-spacing: -3.2px; line-height: 1.08; }
+h1 span { color: #78a486; }
+.intro { margin: 0; color: #7a827c; font-size: 15px; line-height: 1.7; }
+.email-form { display: flex; flex-direction: column; margin-top: 35px; }
+.email-form label { margin-bottom: 9px; color: #3f4942; font-size: 12px; font-weight: 600; }
+.email-form input { height: 52px; padding: 0 15px; border: 1px solid #dfe4dc; border-radius: 9px; outline: none; background: #fff; color: #26332c; font-size: 14px; transition: border-color .2s, box-shadow .2s; }
+.email-form input:focus { border-color: #78a486; box-shadow: 0 0 0 3px #e4eee5; }
+.email-form input::placeholder { color: #adb4ae; }
+.email-form button { height: 52px; margin-top: 13px; padding: 0 18px; display: flex; justify-content: space-between; align-items: center; border: 0; border-radius: 9px; background: #477e5c; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s, transform .2s; }
+.email-form button:hover { background: #396c4d; transform: translateY(-1px); }
+.email-form button span { font-size: 20px; font-weight: 400; }
+.privacy-note { margin-top: 17px; color: #9ba29c; font-size: 11px; text-align: center; }
+.error-message { margin: 8px 0 0; color: #b54747; font-size: 12px; }
+.dashboard { width: 100%; margin: 66px auto auto; padding-bottom: 54px; }
+.dashboard-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 28px; margin-bottom: 35px; }
+.dashboard-heading h1 { font-size: clamp(40px, 5vw, 54px); }
+.availability-card { width: 190px; flex: 0 0 auto; padding: 18px; border: 1px solid #e6e9e2; border-radius: 12px; background: #fff; }
+.availability-card strong { display: block; color: #477e5c; font-family: Manrope, sans-serif; font-size: 32px; letter-spacing: -1px; }
+.availability-card span { display: block; margin-top: 2px; color: #828a83; font-size: 11px; }
+.availability-bar { height: 4px; margin-top: 15px; overflow: hidden; border-radius: 4px; background: #e9eee8; }
+.availability-bar i { display: block; width: 60%; height: 100%; border-radius: inherit; background: #77a986; }
+.table-card { overflow: hidden; border: 1px solid #e6e9e2; border-radius: 13px; background: #fff; }
+.table-heading { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px; border-bottom: 1px solid #eff0ec; }
+.table-heading h2 { margin: 0; color: #26332c; font-family: Manrope, sans-serif; font-size: 16px; }
+.table-heading p { margin: 5px 0 0; color: #969e97; font-size: 11px; }
+.count-pill { padding: 6px 10px; border-radius: 20px; background: #f0f5ef; color: #5c8665; font-size: 11px; font-weight: 600; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; min-width: 680px; border-collapse: collapse; text-align: left; }
+th { padding: 13px 20px; background: #fafbf9; color: #9aa19a; font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+td { padding: 16px 20px; border-top: 1px solid #f0f1ee; color: #465149; font-size: 12px; }
+.spot-cell { color: #304337; font-weight: 700; }
+.muted-cell { color: #919991; }
+.status { display: inline-flex; align-items: center; gap: 7px; color: #66846a; font-size: 11px; }
+.status i { width: 6px; height: 6px; border-radius: 50%; background: #78a986; }
+.status.available { color: #8b928d; }
+.status.available i { background: #c3c9c3; }
+.table-note { margin: 0; padding: 13px 20px; border-top: 1px solid #f0f1ee; color: #a0a69f; font-size: 10px; }
+.back-button { margin-top: 20px; padding: 8px 0; border: 0; background: transparent; color: #748078; font-size: 12px; cursor: pointer; }
+.back-button:hover { color: #477e5c; }
+.parking-section { margin-bottom: 18px; }
+.parking-title { margin: 0; padding: 18px 20px 10px; color: #303c33; font-family: Manrope, sans-serif; font-size: 14px; font-weight: 700; text-align: center; }
+.slot-table { min-width: 720px; font-size: 11px; }
+.slot-table th, .slot-table td { min-width: 42px; height: 34px; padding: 4px 5px; border: 1px solid #d7d9d4; text-align: center; }
+.slot-table th.main-header { border-color: #a81c20; background: #c92127; color: #fff; font-size: 10px; letter-spacing: 0; }
+.slot-table th.sub-header { background: #f7cac9; color: #333; font-size: 9px; letter-spacing: 0; }
+.slot-table .tower-cell { width: 80px; min-width: 80px; background: #fcfcfc; color: #313a33; font-weight: 700; }
+.slot-table .bg-b2 { background: #f9dede; }
+.slot-button { width: 100%; min-width: 30px; padding: 5px 2px; border: 0; border-radius: 4px; background: transparent; color: #34453a; font-size: 11px; cursor: pointer; transition: background .15s, color .15s, transform .15s; }
+.slot-button:hover, .slot-button:focus-visible { outline: none; background: #477e5c; color: white; transform: scale(1.04); }
+.slot-button.is-reserved { color: #a34f4f; background: #fff2f0; }
+.slot-button.is-reserved:hover, .slot-button.is-reserved:focus-visible { background: #a94f4f; color: #fff; }
+.slot-button.is-mine { color: #fff; background: #477e5c; font-weight: 700; }
+.slot-button.is-mine:hover, .slot-button.is-mine:focus-visible { background: #396c4d; }
+.seat-indicator { font-size: 8px; }
+.map-box { min-height: 120px; margin: 8px 18px 18px; display: flex; align-items: center; justify-content: center; border: 1px dashed #c92127; color: #858b85; font-size: 12px; }
+.modal-backdrop { position: fixed; z-index: 10; inset: 0; display: grid; place-items: center; padding: 20px; background: rgb(26 34 28 / 42%); backdrop-filter: blur(3px); }
+.slot-modal { position: relative; width: min(100%, 390px); padding: 30px; border: 1px solid #e6e9e2; border-radius: 16px; background: #fff; box-shadow: 0 24px 80px rgb(24 37 28 / 20%); text-align: center; animation: modal-in .18s ease-out; }
+@keyframes modal-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-close { position: absolute; top: 12px; right: 14px; width: 32px; height: 32px; border: 0; border-radius: 50%; background: #f3f5f1; color: #6c756e; font-size: 22px; line-height: 1; cursor: pointer; }
+.modal-icon { width: 42px; height: 42px; margin: 0 auto; display: grid; place-items: center; border-radius: 13px; background: #eaf2ea; color: #477e5c; font-family: Manrope, sans-serif; font-weight: 800; }
+.modal-kicker { margin: 17px 0 4px; color: #879188; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; }
+.slot-modal h2 { margin: 0; color: #26332c; font-family: Manrope, sans-serif; font-size: 26px; letter-spacing: -.8px; }
+.reservation-status { display: inline-block; margin: 11px 0 0; padding: 6px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+.status-open { background: #eaf3ea; color: #4e7a57; }
+.status-mine { background: #eaf3ea; color: #396c4d; }
+.status-taken { background: #fff0ee; color: #a34f4f; }
+.modal-details { margin: 23px 0 20px; padding: 0 14px; border-radius: 10px; background: #f8f9f7; text-align: left; }
+.modal-details div { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #e9ece7; font-size: 12px; }
+.modal-details div:last-child { border-bottom: 0; }
+.modal-details span { color: #89928b; }
+.modal-details strong { color: #35453a; font-weight: 600; text-align: right; }
+.reservation-hint { margin: -5px 0 14px; color: #946d37; font-size: 11px; line-height: 1.5; text-align: left; }
+.reservation-time { margin: 12px 0; color: #879188; font-size: 10px; line-height: 1.5; }
+.reservation-time strong { display: block; color: #526158; font-weight: 600; }
+.modal-reserve, .modal-unreserve, .modal-done { width: 100%; height: 44px; border: 0; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+.modal-reserve { margin-bottom: 9px; background: #477e5c; }
+.modal-reserve:hover { background: #396c4d; }
+.modal-unreserve { margin-bottom: 9px; background: #a95a50; }
+.modal-unreserve:hover { background: #91473e; }
+.modal-done { background: #77827a; }
+.modal-done:hover { background: #626d65; }
+.history-table { min-width: 850px; }
+.history-table th, .history-table td { padding: 12px 14px; }
+.modal-reserve:disabled, .modal-unreserve:disabled { opacity: .65; cursor: wait; }
+footer { padding: 22px 0; border-top: 1px solid #e8eae5; color: #9ba29c; font-size: 10px; text-align: center; }
+footer span { margin: 0 5px; color: #c1c7c0; }
+@media (max-width: 640px) { .page-shell { padding: 0 22px; } .topbar { height: 72px; } .welcome-card { padding: 55px 0; } .dashboard { margin-top: 42px; } .dashboard-heading { align-items: flex-start; flex-direction: column; } .availability-card { width: 100%; } h1 { letter-spacing: -2.5px; } .dashboard-heading h1 { margin-top: 19px; } }
