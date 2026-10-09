@@ -6,6 +6,8 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 class ReservationCreate(BaseModel):
     email: EmailStr
+    latitude: float = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=180)
     seat_id: str = Field(min_length=1, max_length=250)
     seat_number: str = Field(min_length=1, max_length=32)
     tower: str = Field(min_length=1, max_length=64)

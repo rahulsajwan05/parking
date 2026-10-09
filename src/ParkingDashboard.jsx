@@ -59,6 +59,29 @@ function formatClockTime(value) {
   return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
 }
 
+function getCurrentLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('This browser does not support location access.'))
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => resolve({ latitude: coords.latitude, longitude: coords.longitude }),
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          reject(new Error('Allow location access to reserve a spot at Candor TechSpace.'))
+        } else if (error.code === error.TIMEOUT) {
+          reject(new Error('Could not determine your location in time. Please try again.'))
+        } else {
+          reject(new Error('Unable to read your location. Turn on location services and try again.'))
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    )
+  })
+}
+
 function formatDuration(totalSeconds) {
   const hours = Math.floor(totalSeconds / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
@@ -117,6 +140,7 @@ function SlotDetailsModal({ slot, currentReservation, isSaving, error, onReserve
         </p>}
         {currentReservation && currentReservation.seat_id !== slot.seatId && !slot.isReserved &&
           <p className="reservation-hint">You already reserved slot {currentReservation.seat_number}. Unreserve it before choosing another seat.</p>}
+        {!slot.isReserved && !currentReservation && <p className="reservation-hint">Location access is required to confirm you are at Candor TechSpace, Noida Sector 62. Your coordinates are checked for this booking and are not saved.</p>}
         {error && <p className="error-message" role="alert">{error}</p>}
         {!slot.isReserved && !currentReservation && <button className="modal-reserve" onClick={() => onReserve(slot)} disabled={isSaving}>{isSaving ? 'Reserving…' : 'Reserve this seat'}</button>}
         {slot.isMine && <button className="modal-unreserve" onClick={onUnreserve} disabled={isSaving}>{isSaving ? 'Updating…' : 'Unreserve this seat'}</button>}
@@ -180,8 +204,10 @@ function ParkingDashboard({ email, onLogout }) {
     setActionError('')
     setIsSaving(true)
     try {
+      const location = await getCurrentLocation()
       const reservation = await createReservation({
         email,
+        ...location,
         seat_id: slot.seatId,
         seat_number: slot.slot,
         tower: slot.tower,

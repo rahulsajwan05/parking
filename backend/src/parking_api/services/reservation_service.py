@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
+from math import asin, cos, radians, sin, sqrt
 from statistics import median
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -8,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from parking_api.core.config import get_settings
 from parking_api.models.reservation import Reservation
 from parking_api.models.user import User
 
@@ -22,8 +24,41 @@ class ReservationService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User email not found")
         return user
 
+    @staticmethod
+    def _distance_meters(latitude: float, longitude: float, target_latitude: float,
+                         target_longitude: float) -> float:
+        earth_radius_meters = 6_371_000
+        latitude_delta = radians(target_latitude - latitude)
+        longitude_delta = radians(target_longitude - longitude)
+        haversine = (
+            sin(latitude_delta / 2) ** 2
+            + cos(radians(latitude))
+            * cos(radians(target_latitude))
+            * sin(longitude_delta / 2) ** 2
+        )
+        haversine = min(1.0, max(0.0, haversine))
+        return 2 * earth_radius_meters * asin(sqrt(haversine))
+
+    def _require_on_site(self, latitude: float, longitude: float) -> None:
+        settings = get_settings()
+        distance = self._distance_meters(
+            latitude,
+            longitude,
+            settings.parking_site_latitude,
+            settings.parking_site_longitude,
+        )
+        if distance > settings.parking_site_radius_meters:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=(
+                    f"You must be within {settings.parking_site_radius_meters} meters of "
+                    f"{settings.parking_site_name} to reserve a spot."
+                ),
+            )
+
     def create(self, *, email: str, seat_id: str, seat_number: str, tower: str,
-               parking_level: str, vehicle_type: str) -> Reservation:
+               parking_level: str, vehicle_type: str, latitude: float, longitude: float) -> Reservation:
+        self._require_on_site(latitude, longitude)
         user = self._get_user(email)
         current = self.session.scalar(
             select(Reservation).where(
