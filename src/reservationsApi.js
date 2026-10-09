@@ -55,3 +55,13 @@ export function unreserveSeat(reservationId, email) {
     body: JSON.stringify({ email }),
   })
 }
+
+export function askAvailability(availableSpots, takenSpots) {
+  return request('/assistant/availability', {
+    method: 'POST',
+    body: JSON.stringify({
+      available_spots: availableSpots,
+      taken_spots: takenSpots,
+    }),
+  })
+}

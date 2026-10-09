@@ -22,9 +22,10 @@ Reservation endpoints:
 - `POST /api/v1/reservations/{id}/unreserve` records the release time and booked duration.
 - `GET /api/v1/reservations/active` lists occupied seats and identifies the caller's own seat without returning other users' emails. Pass the login email in the `X-User-Email` header.
 - `GET /api/v1/reservations/history` returns up to 20 recent reservations with timestamps and duration. Pass the login email in the `X-User-Email` header.
+- `POST /api/v1/assistant/availability` asks Google Gemini to summarize the live available and taken counts supplied by the dashboard.
 
 The first request creates a user row; later requests for the same email return the existing row. Email addresses are normalized to lowercase. The endpoint stores an email but does not verify ownership or provide authentication.
 
 ## Configuration
 
-Set `DATABASE_URL` and `CORS_ORIGINS` in `.env`. The local Compose database is named `parking` and uses the development credentials in `.env.example`; replace those credentials outside local development.
+Set `DATABASE_URL`, `CORS_ORIGINS`, and `GOOGLE_API_KEY` in `.env`. `GOOGLE_MODEL` defaults to `gemini-3.8-flash`. The local Compose database is named `parking` and uses the development credentials in `.env`; replace those credentials outside local development.

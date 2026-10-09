@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
+  askAvailability,
   getActiveReservations,
   getReservationHistory,
   reserveSeat as createReservation,
@@ -118,6 +119,9 @@ function ParkingDashboard({ email, onLogout }) {
   const [isLoading, setIsLoading] = useState(true)
   const [apiError, setApiError] = useState('')
   const [actionError, setActionError] = useState('')
+  const [assistantAnswer, setAssistantAnswer] = useState('')
+  const [assistantError, setAssistantError] = useState('')
+  const [isAskingAssistant, setIsAskingAssistant] = useState(false)
   const myReservation = reservations.find((reservation) => reservation.reserved_by_me) || null
   const takenSeatCount = reservations.filter((reservation) => PARKING_SEAT_IDS.has(reservation.seat_id)).length
   const availableSeatCount = TOTAL_SEAT_COUNT - takenSeatCount
@@ -139,6 +143,19 @@ function ParkingDashboard({ email, onLogout }) {
   }
 
   useEffect(() => { refreshData() }, [email])
+
+  async function handleAskAssistant() {
+    setAssistantError('')
+    setIsAskingAssistant(true)
+    try {
+      const result = await askAvailability(availableSeatCount, takenSeatCount)
+      setAssistantAnswer(result.answer)
+    } catch (error) {
+      setAssistantError(error.message || 'The local AI assistant is unavailable.')
+    } finally {
+      setIsAskingAssistant(false)
+    }
+  }
 
   async function handleReserve(slot) {
     if (myReservation || slot.isReserved || isSaving) return
@@ -196,6 +213,17 @@ function ParkingDashboard({ email, onLogout }) {
             <p className="intro">Here’s what’s open in your lot right now.</p>
           </div>
           <div className="availability-card"><strong>{myReservation ? '1' : '0'}</strong><span>{myReservation ? `Your seat: ${myReservation.seat_number}` : 'Your reserved seats'}</span><div className="availability-bar"><i /></div></div>
+        </div>
+        <div className="assistant-card">
+          <div className="assistant-mark" aria-hidden="true">AI</div>
+          <div className="assistant-copy">
+            <strong>Parking assistant</strong>
+            <p>{assistantAnswer || `Ask the local AI about availability: ${availableSeatCount} available, ${takenSeatCount} taken.`}</p>
+            {assistantError && <span className="assistant-error" role="alert">{assistantError}</span>}
+          </div>
+          <button className="assistant-button" onClick={handleAskAssistant} disabled={isLoading || isAskingAssistant}>
+            {isAskingAssistant ? 'Thinking…' : 'Ask AI'}
+          </button>
         </div>
         {apiError && <p className="error-message" role="alert">{apiError}</p>}
 

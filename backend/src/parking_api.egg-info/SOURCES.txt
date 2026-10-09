@@ -11,6 +11,8 @@ src/parking_api/api/__init__.py
 src/parking_api/api/v1/__init__.py
 src/parking_api/api/v1/api.py
 src/parking_api/api/v1/endpoints/__init__.py
+src/parking_api/api/v1/endpoints/assistant.py
+src/parking_api/api/v1/endpoints/reservations.py
 src/parking_api/api/v1/endpoints/users.py
 src/parking_api/core/__init__.py
 src/parking_api/core/config.py
@@ -18,8 +20,13 @@ src/parking_api/db/__init__.py
 src/parking_api/db/base.py
 src/parking_api/db/session.py
 src/parking_api/models/__init__.py
+src/parking_api/models/reservation.py
 src/parking_api/models/user.py
 src/parking_api/schemas/__init__.py
+src/parking_api/schemas/assistant.py
+src/parking_api/schemas/reservation.py
 src/parking_api/schemas/user.py
 src/parking_api/services/__init__.py
+src/parking_api/services/assistant_service.py
+src/parking_api/services/reservation_service.py
 src/parking_api/services/user_service.py
