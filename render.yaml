@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: parkside-parking-api
+    runtime: docker
+    region: singapore
+    plan: free
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: parkside-parking-db
+          property: connectionString
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: GOOGLE_MODEL
+        value: gemini-3.8-flash
+      - key: CORS_ORIGINS
+        value: '["http://localhost:5173","http://127.0.0.1:5173"]'
+
+databases:
+  - name: parkside-parking-db
+    databaseName: parking
+    user: parking_user
+    plan: basic-256mb
+    region: singapore
+    postgresMajorVersion: "17"
