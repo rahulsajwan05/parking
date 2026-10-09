@@ -42,6 +42,11 @@ export function getReservationHistory(email) {
   return request('/reservations/history', { headers: { 'X-User-Email': email } })
 }
 
+export function getSeatFillEstimates(timeZone) {
+  const query = new URLSearchParams({ time_zone: timeZone })
+  return request(`/reservations/fill-estimates?${query}`)
+}
+
 export function reserveSeat(reservation) {
   return request('/reservations', {
     method: 'POST',

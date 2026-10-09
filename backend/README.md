@@ -22,6 +22,7 @@ Reservation endpoints:
 - `POST /api/v1/reservations/{id}/unreserve` records the release time and booked duration.
 - `GET /api/v1/reservations/active` lists occupied seats and identifies the caller's own seat without returning other users' emails. Pass the login email in the `X-User-Email` header.
 - `GET /api/v1/reservations/history` returns up to 20 recent reservations with timestamps and duration. Pass the login email in the `X-User-Email` header.
+- `GET /api/v1/reservations/fill-estimates` reports each spot's median reservation time over the last 14 days, using the requested `time_zone` query parameter (UTC by default).
 - `POST /api/v1/assistant/availability` asks Google Gemini to summarize the live available and taken counts supplied by the dashboard.
 
 The first request creates a user row; later requests for the same email return the existing row. Email addresses are normalized to lowercase. The endpoint stores an email but does not verify ownership or provide authentication.

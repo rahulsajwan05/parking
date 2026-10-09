@@ -43,3 +43,11 @@ class ReservationRead(BaseModel):
 
 class ActiveReservationRead(ReservationRead):
     reserved_by_me: bool
+
+
+class SeatFillEstimate(BaseModel):
+    seat_id: str
+    typical_reserved_time: str
+    reservations_in_period: int
+    period_days: int = 14
+    time_zone: str

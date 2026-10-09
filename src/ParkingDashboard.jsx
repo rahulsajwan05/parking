@@ -3,6 +3,7 @@ import {
   askAvailability,
   getActiveReservations,
   getReservationHistory,
+  getSeatFillEstimates,
   reserveSeat as createReservation,
   unreserveSeat as releaseReservation,
 } from './reservationsApi.js'
@@ -49,6 +50,14 @@ const PARKING_SEAT_IDS = new Set([
   ...getSeatIds(twoWheelRows, 'Two-wheeler'),
 ])
 const TOTAL_SEAT_COUNT = PARKING_SEAT_IDS.size
+const CLIENT_TIME_ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+
+function formatClockTime(value) {
+  const [hour, minute] = value.split(':').map(Number)
+  const date = new Date()
+  date.setHours(hour, minute, 0, 0)
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+}
 
 function formatDuration(totalSeconds) {
   const hours = Math.floor(totalSeconds / 3600)
@@ -59,7 +68,7 @@ function formatDuration(totalSeconds) {
   return `${seconds}s`
 }
 
-function ParkingRows({ groups, vehicleType, reservations, userEmail, onSelectSlot }) {
+function ParkingRows({ groups, vehicleType, reservations, fillEstimates, userEmail, onSelectSlot }) {
   return groups.flatMap(({ tower, rows }) => rows.map((row, rowIndex) => (
     <tr key={`${vehicleType}-${tower}-${rowIndex}`}>
       {rowIndex === 0 && <td className="tower-cell" rowSpan={rows.length}>{tower}</td>}
@@ -71,8 +80,9 @@ function ParkingRows({ groups, vehicleType, reservations, userEmail, onSelectSlo
         const seatId = `${vehicleType}|${tower}|${level}|${rowIndex}|${columnIndex}|${slot}`
         const reservation = reservations.find((item) => item.seat_id === seatId)
         const isMine = Boolean(reservation?.reserved_by_me)
+        const fillEstimate = fillEstimates[seatId]
         return <td key={`${rowIndex}-${columnIndex}`} className={basementTwo ? 'bg-b2' : ''}>
-          {slot && <button className={`slot-button${reservation ? ' is-reserved' : ''}${isMine ? ' is-mine' : ''}`} onClick={() => onSelectSlot({ seatId, slot, tower, level, vehicleType, reservation, reservationId: reservation?.id, isReserved: Boolean(reservation), isMine })} disabled={!userEmail} aria-label={`Parking slot ${slot}, ${tower}, ${level}${reservation ? isMine ? ', reserved by you' : ', reserved' : ', available'}`}>
+          {slot && <button className={`slot-button${reservation ? ' is-reserved' : ''}${isMine ? ' is-mine' : ''}`} onClick={() => onSelectSlot({ seatId, slot, tower, level, vehicleType, reservation, fillEstimate, reservationId: reservation?.id, isReserved: Boolean(reservation), isMine })} disabled={!userEmail} aria-label={`Parking slot ${slot}, ${tower}, ${level}${reservation ? isMine ? ', reserved by you' : ', reserved' : ', available'}`}>
             {slot}{reservation && <span className="seat-indicator" aria-hidden="true">{isMine ? ' · yours' : ' · reserved'}</span>}
           </button>}
         </td>
@@ -100,6 +110,11 @@ function SlotDetailsModal({ slot, currentReservation, isSaving, error, onReserve
           <div><span>Parking level</span><strong>{slot.level}</strong></div>
         </div>
         {slot.reservation && <div className="reservation-time">Reserved at <strong>{new Date(slot.reservation.reserved_at).toLocaleString()}</strong></div>}
+        {!slot.isReserved && slot.fillEstimate && <p className="reservation-hint">
+          This spot was typically reserved around <strong>{formatClockTime(slot.fillEstimate.typical_reserved_time)}</strong> over the last {slot.fillEstimate.period_days} days
+          ({slot.fillEstimate.reservations_in_period} {slot.fillEstimate.reservations_in_period === 1 ? 'record' : 'records'}). This is a historical guide, not a live prediction.
+          {slot.fillEstimate.reservations_in_period < 3 && ' There are few records, so the estimate may be unreliable.'}
+        </p>}
         {currentReservation && currentReservation.seat_id !== slot.seatId && !slot.isReserved &&
           <p className="reservation-hint">You already reserved slot {currentReservation.seat_number}. Unreserve it before choosing another seat.</p>}
         {error && <p className="error-message" role="alert">{error}</p>}
@@ -115,6 +130,7 @@ function ParkingDashboard({ email, onLogout }) {
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [reservations, setReservations] = useState([])
   const [history, setHistory] = useState([])
+  const [fillEstimates, setFillEstimates] = useState({})
   const [isSaving, setIsSaving] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [apiError, setApiError] = useState('')
@@ -129,12 +145,14 @@ function ParkingDashboard({ email, onLogout }) {
   async function refreshData() {
     setApiError('')
     try {
-      const [activeReservations, reservationHistory] = await Promise.all([
+      const [activeReservations, reservationHistory, recentFillEstimates] = await Promise.all([
         getActiveReservations(email),
         getReservationHistory(email),
+        getSeatFillEstimates(CLIENT_TIME_ZONE).catch(() => []),
       ])
       setReservations(activeReservations)
       setHistory(reservationHistory)
+      setFillEstimates(Object.fromEntries(recentFillEstimates.map((estimate) => [estimate.seat_id, estimate])))
     } catch (error) {
       setApiError(error.message || 'Unable to load reservation data.')
     } finally {
@@ -231,7 +249,7 @@ function ParkingDashboard({ email, onLogout }) {
           <h2 className="parking-title">Four - Wheeler Parking Slot Details</h2>
           <div className="table-scroll"><table className="slot-table four-wheel-table">
             <thead><tr><th className="main-header" rowSpan="2">Tower</th><th className="main-header" colSpan="2">Ground</th><th className="main-header" colSpan="6">Basement 1</th><th className="main-header" colSpan="3">Basement 2</th></tr><tr>{['Ground', 'Ground', 'Basement 1', 'Basement 1', 'Basement 1', 'Basement 1', 'Basement 1', 'Basement 1', 'Basement 2', 'Basement 2', 'Basement 2'].map((level, index) => <th className="sub-header" key={index}>{level}</th>)}</tr></thead>
-            <tbody><ParkingRows groups={fourWheelRows} vehicleType="Four-wheeler" reservations={reservations} userEmail={isLoading ? '' : email} onSelectSlot={setSelectedSlot} /></tbody>
+            <tbody><ParkingRows groups={fourWheelRows} vehicleType="Four-wheeler" reservations={reservations} fillEstimates={fillEstimates} userEmail={isLoading ? '' : email} onSelectSlot={setSelectedSlot} /></tbody>
           </table></div>
         </div>
 
@@ -239,7 +257,7 @@ function ParkingDashboard({ email, onLogout }) {
           <h2 className="parking-title">Two - Wheeler Parking Slot Details</h2>
           <div className="table-scroll"><table className="slot-table two-wheel-table">
             <thead><tr><th className="main-header">Tower</th><th className="main-header" colSpan="2">Basement 1</th><th className="main-header">Basement 2</th></tr></thead>
-            <tbody><ParkingRows groups={twoWheelRows} vehicleType="Two-wheeler" reservations={reservations} userEmail={isLoading ? '' : email} onSelectSlot={setSelectedSlot} /></tbody>
+            <tbody><ParkingRows groups={twoWheelRows} vehicleType="Two-wheeler" reservations={reservations} fillEstimates={fillEstimates} userEmail={isLoading ? '' : email} onSelectSlot={setSelectedSlot} /></tbody>
           </table></div>
         </div>
 

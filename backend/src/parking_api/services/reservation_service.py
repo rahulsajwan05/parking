@@ -1,4 +1,7 @@
-from datetime import datetime, timezone
+from collections import defaultdict
+from datetime import datetime, timedelta, timezone
+from statistics import median
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from fastapi import HTTPException, status
 from sqlalchemy import select
@@ -107,3 +110,41 @@ class ReservationService:
             .order_by(Reservation.reserved_at.desc())
             .limit(limit)
         ).all())
+
+    def list_fill_estimates(self, *, time_zone: str) -> list[dict[str, str | int]]:
+        try:
+            display_zone = ZoneInfo(time_zone)
+        except (ZoneInfoNotFoundError, ValueError, OSError) as error:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Unknown time zone",
+            ) from error
+
+        period_days = 14
+        cutoff = datetime.now(timezone.utc) - timedelta(days=period_days)
+        reservations = self.session.execute(
+            select(Reservation.seat_id, Reservation.reserved_at)
+            .where(Reservation.reserved_at >= cutoff)
+        ).all()
+
+        times_by_seat: dict[str, list[int]] = defaultdict(list)
+        for seat_id, reserved_at in reservations:
+            if reserved_at.tzinfo is None:
+                reserved_at = reserved_at.replace(tzinfo=timezone.utc)
+            local_time = reserved_at.astimezone(display_zone)
+            times_by_seat[seat_id].append(local_time.hour * 60 + local_time.minute)
+
+        estimates = []
+        for seat_id, minute_values in times_by_seat.items():
+            typical_minute = int(median(minute_values))
+            hour, minute = divmod(typical_minute, 60)
+            estimates.append(
+                {
+                    "seat_id": seat_id,
+                    "typical_reserved_time": f"{hour:02d}:{minute:02d}",
+                    "reservations_in_period": len(minute_values),
+                    "period_days": period_days,
+                    "time_zone": time_zone,
+                }
+            )
+        return estimates

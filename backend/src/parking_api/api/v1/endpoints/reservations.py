@@ -10,6 +10,7 @@ from parking_api.schemas.reservation import (
     ReservationCreate,
     ReservationRead,
     ReservationRelease,
+    SeatFillEstimate,
 )
 from parking_api.services.reservation_service import ReservationService
 
@@ -52,6 +53,16 @@ def list_active_reservations(
         )
         for reservation, is_mine in rows
     ]
+
+
+@router.get("/fill-estimates", response_model=list[SeatFillEstimate])
+def list_fill_estimates(
+    session: DbSession,
+    time_zone: Annotated[str, Query(min_length=1, max_length=64)] = "UTC",
+) -> list[SeatFillEstimate]:
+    """Return per-seat typical reservation times from the past 14 days."""
+    estimates = ReservationService(session).list_fill_estimates(time_zone=time_zone)
+    return [SeatFillEstimate.model_validate(estimate) for estimate in estimates]
 
 
 @router.get("/history", response_model=list[ReservationRead])
