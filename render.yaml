@@ -23,6 +23,6 @@ databases:
   - name: parkside-parking-db
     databaseName: parking
     user: parking_user
-    plan: basic-256mb
+    plan: free
     region: singapore
     postgresMajorVersion: "17"
